@@ -248,7 +248,7 @@ impl Backend {
             let file_library = archive.inner.get_file_library().to_storage();
 
             let main_file_id = 'result: {
-                while let Some(simple_file) = file_library.get(i) {
+                while let Ok(simple_file) = file_library.get(i) {
                     if parse::circom_filename_to_uri(simple_file.name()) == params.uri {
                         break 'result i;
                     }

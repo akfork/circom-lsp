@@ -447,7 +447,7 @@ fn get_location(
     file_id: usize,
     archive: &ProgramArchive,
 ) -> Option<lsp_types::Location> {
-    let simple_file = archive.inner.file_library.to_storage().get(file_id)?;
+    let simple_file = archive.inner.file_library.to_storage().get(file_id).ok()?;
 
     let uri = parse::circom_filename_to_uri(simple_file.name());
     let source = simple_file.source();

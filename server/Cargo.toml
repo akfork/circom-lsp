@@ -4,3 +4,4 @@ members = ["circom-lsp", "parser", "type_analysis", "program_structure"]
 exclude = [
     "circom_deps.sh"
 ]
+resolver = "2"

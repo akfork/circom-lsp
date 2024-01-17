@@ -230,7 +230,7 @@ pub fn preprocess(expr: &str) -> Result<String, ()> {
     let mut pp = String::new();
     let mut state = 0;
     let mut loc = 0;
-    let mut block_start = 0;
+    let mut _block_start = 0;
 
     let mut it = expr.chars();
     while let Some(c0) = it.next() {
@@ -245,7 +245,7 @@ pub fn preprocess(expr: &str) -> Result<String, ()> {
                         pp.push(' ');
                     }
                     Some('*') => {
-                        block_start = loc;
+                        _block_start = loc;
                         state = 2;
                         pp.push(' ');
                         pp.push(' ');

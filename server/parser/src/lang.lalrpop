@@ -346,6 +346,23 @@ ParseSubstitution : Statement = {
 
     <s:@L> <variable: ParseVariable>  "--" <e:@R>
      => ast_shortcuts::subsub(Meta::new(s,e),variable),
+
+    <s:@L> "++"  <variable: ParseVariable> <e:@R>
+    => {
+        let mut report = Report::error(format!("illegal expression: circom language does not admit the ++{} operator, use {}++ instead", variable.0, variable.0), ReportCode::IllegalExpression);
+        report.add_primary(s..e, file_id, "here".to_string());
+        errors.push(report);
+        build_block(Meta::new(s,e), Vec::new())
+    },
+
+    <s:@L>  "--"  <variable: ParseVariable> <e:@R>
+    => {
+        let mut report = Report::error(format!("illegal expression: circom language does not admit the --{} operator, use {}-- instead", variable.0, variable.0), ReportCode::IllegalExpression);
+        report.add_primary(s..e, file_id, "here".to_string());
+        errors.push(report);
+        build_block(Meta::new(s,e), Vec::new())
+    },
+
 };
 
 ParseBlock : Statement = {
@@ -406,7 +423,7 @@ ParseStatement2 : Statement = {
     <s:@L> "assert" "(" <arg: ParseExpression> ")" Semicolon <e:@R>
     => build_assert(Meta::new(s,e),arg),
 
-    <s:@L> <lhe: ParseExpression> Semicolon <e:@R>
+    <s:@L> <lhe: ExpressionAnonymous> Semicolon <e:@R>
     => build_anonymous_component_statement(Meta::new(s,e), lhe),
 
     ParseBlock
@@ -461,24 +478,23 @@ Listable: Vec<Expression> = {
     },
 };
 
-ListableWithInputNames  : (Vec<Expression>,Option<Vec<(AssignOp,String)>>) = {
+ListableWithInputNames  : (Vec<Expression>, Vec<(AssignOp,String)>) = {
     <e : (< IDENTIFIER> <ParseAssignOp> < ParseExpression> ",")*>
     <name: IDENTIFIER> <op : ParseAssignOp> <signal: ParseExpression> => {
         let (mut operators_names, mut signals) = unzip_3(e);
         signals.push(signal);
-        match operators_names.len() {
-            0 => (signals, Option::None),
-            _ => { operators_names.push((op,name)); (signals, Option::Some(operators_names))
-            }
-        }
+        operators_names.push((op, name));
+        (signals, operators_names)
     }
 };
 
-ListableAnon : (Vec<Expression>,Option<Vec<(AssignOp,String)>>) = {
+ListableAnon : (Vec<Expression>, Option<Vec<(AssignOp,String)>>) = {
+    <l : ListableWithInputNames> => {
+        (l.0, Option::Some(l.1))
+    },
     <l : Listable> => {
         (l, Option::None)
     },
-    <l : ListableWithInputNames> => l,
 };
 
 ParseString : LogArgument = {
@@ -591,19 +607,22 @@ Expression3 = InfixOpTier<ParseExp,Expression2>;
 // ops: Unary - ! ~
 Expression2 = PrefixOpTier<ParseExpressionPrefixOpcode,Expression1>;
 
-// function call, array inline, anonymous component call
-Expression1: Expression = {
+ExpressionAnonymous: Expression = {
     <s:@L> <id: IDENTIFIER> "(" <args: Listable?> ")" "(" <args2: ListableAnon?> ")"  <e:@R>
     => {let params = match args {
         None => Vec::new(),
         Some(a) => a
     };
     let (signals, names) = match args2 {
-        None => (Vec::new(),Option::None),
+        None => (Vec::new(), Option::None),
         Some(a) => a
     };
     build_anonymous_component(Meta::new(s,e),id,params,signals,names,false)}
-    ,
+}
+
+// function call, array inline, anonymous component call
+Expression1: Expression = {
+    ExpressionAnonymous,
     
     <s:@L> <id: IDENTIFIER> "(" <args: Listable?> ")" <e:@R>
     => match args {

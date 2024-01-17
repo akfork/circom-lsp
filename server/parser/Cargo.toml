@@ -1,24 +1,22 @@
 [package]
 name = "circom-lsp-parser"
-version = "2.1.5"
+version = "2.1.7"
 authors = ["Costa Group UCM","iden3"]
-license = "GPL-3.0"
-description = "Support crate for circom-lsp"
-edition = "2018"
+edition = "2021"
 build = "build.rs"
 
 [build-dependencies]
-rustc-hex = "2.0.1"
-lalrpop = { version = "0.19.9", features = ["lexer"] }
-num-bigint-dig = "0.6.0"
-num-traits = "0.2.6"
+rustc-hex = "2.1.0"
+lalrpop = { version = "0.20.0", features = ["lexer"] }
+num-bigint-dig = "0.8.4"
+num-traits = "0.2.17"
 
 [dependencies]
-program_structure = {path = "../program_structure", package = "circom-lsp-program-structure", version = "2.1.5"}
-lalrpop-util = "0.19.9"
-regex = "1.1.2"
-rustc-hex = "2.0.1"
-num-bigint-dig = "0.6.0"
-num-traits = "0.2.6"
-serde = "1.0.82"
-serde_derive = "1.0.91"
+program_structure = {path = "../program_structure", package = "circom-lsp-program-structure", version = "2.1.7"}
+lalrpop-util = "0.20.0"
+regex = "1.10.2"
+rustc-hex = "2.1.0"
+num-bigint-dig = "0.8.4"
+num-traits = "0.2.17"
+serde = "1.0.195"
+serde_derive = "1.0.195"

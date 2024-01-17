@@ -1,6 +1,6 @@
 #!/bin/bash
 
-commit="ce903c6"
+commit="5be95926574fd92212d3ada1cf8b8c8c85fa0ab4"
 
 rm -rf circom
 rm -rf parser
